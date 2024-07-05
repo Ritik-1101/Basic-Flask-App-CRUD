@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h2 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="date"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Student Management System</h1>
+    </header>
+    <div class="container">
+        <h2 id="view-students">View All Students</h2>
+        <button onclick="fetchStudents()">Get All Students</button>
+        <table id="students-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Date of Birth</th>
+                    <th>Amount Due</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here dynamically -->
+            </tbody>
+        </table>
+
+        <h2 id="add-student-form">Add a New Student</h2>
+        <form id="student-form">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" required>
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" required>
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" name="dob" required>
+            <label for="amount_due">Amount Due:</label>
+            <input type="number" id="amount_due" name="amount_due" required>
+            <button type="submit">Add Student</button>
+        </form>
+
+        <h2 id="update-student-form">Update a Student</h2>
+        <form id="update-form">
+            <label for="update_student_id">Student ID:</label>
+            <input type="number" id="update_student_id" name="update_student_id" required>
+            <label for="update_first_name">First Name:</label>
+            <input type="text" id="update_first_name" name="update_first_name">
+            <label for="update_last_name">Last Name:</label>
+            <input type="text" id="update_last_name" name="update_last_name">
+            <label for="update_dob">Date of Birth:</label>
+            <input type="date" id="update_dob" name="update_dob">
+            <label for="update_amount_due">Amount Due:</label>
+            <input type="number" id="update_amount_due" name="update_amount_due">
+            <button type="submit">Update Student</button>
+        </form>
+
+        <h2 id="delete-student-form">Delete a Student</h2>
+        <form id="delete-form">
+            <label for="delete_student_id">Student ID:</label>
+            <input type="number" id="delete_student_id" name="delete_student_id" required>
+            <button type="submit">Delete Student</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('student-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const data = {
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                dob: document.getElementById('dob').value,
+                amount_due: document.getElementById('amount_due').value
+            };
+
+            fetch('/students', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Student added successfully!');
+                document.getElementById('student-form').reset();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('update-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const studentId = document.getElementById('update_student_id').value;
+            const data = {
+                first_name: document.getElementById('update_first_name').value,
+                last_name: document.getElementById('update_last_name').value,
+                dob: document.getElementById('update_dob').value,
+                amount_due: document.getElementById('update_amount_due').value
+            };
+
+            fetch(`/students/${studentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Student updated successfully!');
+                document.getElementById('update-form').reset();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('delete-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const studentId = document.getElementById('delete_student_id').value;
+
+            fetch(`/students/${studentId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Student deleted successfully!');
+                document.getElementById('delete-form').reset();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        function fetchStudents() {
+            fetch('/students')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('students-table').querySelector('tbody');
+                tableBody.innerHTML = ''; // Clear existing table rows
+
+                data.forEach(student => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${student.student_id}</td>
+                        <td>${student.first_name}</td>
+                        <td>${student.last_name}</td>
+                        <td>${student.dob}</td>
+                        <td>${student.amount_due}</td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+
+                // Show the table
+                document.getElementById('students-table').style.display = 'table';
+
+                console.log(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
